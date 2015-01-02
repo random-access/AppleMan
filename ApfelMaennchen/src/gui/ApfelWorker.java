@@ -1,14 +1,10 @@
 package gui;
 
-import java.awt.Point;
-
 public class ApfelWorker {
 
 	double radius;
 	int maxiter;
 	double [][] values;
-
-	
 
 	public ApfelWorker(double radius, int maxiter) {
 		this.radius = radius;
@@ -38,10 +34,10 @@ public class ApfelWorker {
 		
 		return iter;
 	}
-	public void calculateArray(int [][] screenPoints) {
+	public void calculateArray(int [][] screenPoints, double xmax, double ymax, double xmin, double ymin) {
 		for (int x = 0; x < screenPoints.length; x++) {
 			for (int y = 0; y < screenPoints[0].length; y++) {
-				screenPoints[x][y] = iterateFunction((double)x*2/screenPoints.length-1 , (double)y*2/screenPoints[0].length - 1);
+				screenPoints[x][y] = iterateFunction((-1) * (double)x*(xmax-xmin)/screenPoints.length-(xmax+xmin) , (double)y*(ymax-ymin)/screenPoints[0].length - (ymax+ymin));
 			}
 		}
 	}

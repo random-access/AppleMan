@@ -9,14 +9,14 @@ public class PaintPanel extends JPanel {
 	int [][] points;
 	
 	
-	int width = 800;	
+	int width  = 800;
 	int height = 600;
 
 	
 	public PaintPanel() {
 		ApfelWorker worker = new ApfelWorker(10.0, 500);
 		points = new int[width][height];
-		worker.calculateArray(points);
+		worker.calculateArray(points, 0, 0, -2, -2);
 		
 		setPreferredSize(new Dimension(width, height));
 		setBackground(Color.WHITE);
