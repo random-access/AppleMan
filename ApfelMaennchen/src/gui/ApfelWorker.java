@@ -1,5 +1,7 @@
 package gui;
 
+import java.awt.Point;
+
 public class ApfelWorker {
 
 	double radius;
@@ -40,14 +42,32 @@ public class ApfelWorker {
 		return iter;
 	}
 
+	public static double[] calculateComplexFromScreenCoordinates(int sx,
+			int sy, double xmin, double ymin, double xmax, double ymax,
+			double swidth, int sheight) {
+		return new double[] { (double) sx * (xmax - xmin) / swidth + (xmin),
+				(double) (sy * (ymin - ymax) / sheight + (ymax)) };
+	}
+
+	public static Point calculateScreenCoordinatesFromComplex(double cx,
+			double cy, double xmin, double ymin, double xmax, double ymax,
+			int swidth, int sheight) {
+		return new Point((int) Math.round((swidth / (xmax - xmin))
+				* (cx - xmin)), (int) Math.round((sheight / (ymin - ymax))
+				* (cy - xmax)));
+	}
+
 	public void calculateArray(int[][] screenPoints, double xmax, double ymax,
 			double xmin, double ymin) {
 		for (int x = 0; x < screenPoints.length; x++) {
 			for (int y = 0; y < screenPoints[0].length; y++) {
-				screenPoints[x][y] = iterateFunction((double) x * (xmax - xmin)
-						/ screenPoints.length + (xmin), (double) (-1) * y
-						* (ymax - ymin) / screenPoints[0].length + (ymin));
+				double[] ccoords = calculateComplexFromScreenCoordinates(x, y,
+						xmin, ymin, xmax, ymax, screenPoints.length,
+						screenPoints[0].length);
+
+				screenPoints[x][y] = iterateFunction(ccoords[0], ccoords[1]);
 			}
+
 		}
 	}
 }
