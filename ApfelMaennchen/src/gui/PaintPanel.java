@@ -27,7 +27,7 @@ public class PaintPanel extends JPanel implements CalcObserver {
 	protected double ymin = -2;
 
 	public PaintPanel() {
-		worker = new ApfelWorker(10.0, 5000);
+		worker = new ApfelWorker(10.0, 100);
 		points = new int[width][height];
 		worker.calculateArray(points, xmax, ymax, xmin, xmin);
 
