@@ -87,14 +87,31 @@ public class ApfelWorker {
 		public void run() {
 			isRunning = true;
 			synchronized (runningLock) {
+				// run a Thread that periodically updates the screen
+				Thread notifyer = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						try {
+							while (true) {
+								sleep(20);
+							}
+						} catch (InterruptedException e) {
+							System.out.println("Notifyer beendet");
+						}
+
+					}
+				});
+				notifyer.start();
 				for (int x = 0; x < screenPoints.length; x++) {
 					new Thread(new LineWorker(x, xmin, xmax, ymin, ymax,
 							screenPoints)).start();
-					notifyObservers();
 
 				}
+				notifyer.interrupt();
 			}
 			isRunning = false;
+
 		}
 	}
 
@@ -124,6 +141,7 @@ public class ApfelWorker {
 
 				screenPoints[x][y] = iterateFunction(ccoords[0], ccoords[1]);
 			}
+			notifyObservers();
 		}
 	}
 
