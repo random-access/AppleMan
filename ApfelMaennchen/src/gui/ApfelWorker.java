@@ -88,19 +88,42 @@ public class ApfelWorker {
 			isRunning = true;
 			synchronized (runningLock) {
 				for (int x = 0; x < screenPoints.length; x++) {
-					for (int y = 0; y < screenPoints[0].length; y++) {
-						double[] ccoords = calculateComplexFromScreenCoordinates(
-								x, y, xmin, ymin, xmax, ymax,
-								screenPoints.length, screenPoints[0].length);
-
-						screenPoints[x][y] = iterateFunction(ccoords[0],
-								ccoords[1]);
-					}
+					new Thread(new LineWorker(x, xmin, xmax, ymin, ymax,
+							screenPoints)).start();
 					notifyObservers();
 
 				}
 			}
 			isRunning = false;
+		}
+	}
+
+	class LineWorker implements Runnable {
+		int x;
+		double xmin, xmax, ymin, ymax;
+		int[][] screenPoints;
+
+		public LineWorker(int x, double xmin, double xmax, double ymin,
+				double ymax, int[][] screenPoints) {
+			super();
+			this.x = x;
+
+			this.xmin = xmin;
+			this.xmax = xmax;
+			this.ymin = ymin;
+			this.ymax = ymax;
+			this.screenPoints = screenPoints;
+		}
+
+		@Override
+		public void run() {
+			for (int y = 0; y < screenPoints[0].length; y++) {
+				double[] ccoords = calculateComplexFromScreenCoordinates(x, y,
+						xmin, ymin, xmax, ymax, screenPoints.length,
+						screenPoints[0].length);
+
+				screenPoints[x][y] = iterateFunction(ccoords[0], ccoords[1]);
+			}
 		}
 	}
 
