@@ -1,14 +1,20 @@
 package gui;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
+@SuppressWarnings("serial")
 public class ApfelWorker {
 
 	double radius;
 	int maxiter;
 	double[][] values;
+	public Object runningLock = new Object();
+	public boolean isRunning = false;
+	private ArrayList<CalcObserver> observers = new ArrayList<CalcObserver>();
 
 	public ApfelWorker(double radius, int maxiter) {
+
 		this.radius = radius;
 		this.maxiter = maxiter;
 	}
@@ -59,15 +65,56 @@ public class ApfelWorker {
 
 	public void calculateArray(int[][] screenPoints, double xmax, double ymax,
 			double xmin, double ymin) {
-		for (int x = 0; x < screenPoints.length; x++) {
-			for (int y = 0; y < screenPoints[0].length; y++) {
-				double[] ccoords = calculateComplexFromScreenCoordinates(x, y,
-						xmin, ymin, xmax, ymax, screenPoints.length,
-						screenPoints[0].length);
+		ApfelWorkerThread t = new ApfelWorkerThread(xmin, xmax, ymin, ymax,
+				screenPoints);
+		t.start();
+	}
 
-				screenPoints[x][y] = iterateFunction(ccoords[0], ccoords[1]);
+	class ApfelWorkerThread extends Thread {
+		double xmin, xmax, ymin, ymax;
+		int[][] screenPoints;
+
+		public ApfelWorkerThread(double xmin, double xmax, double ymin,
+				double ymax, int[][] screenPoints) {
+			super();
+			this.xmin = xmin;
+			this.xmax = xmax;
+			this.ymin = ymin;
+			this.ymax = ymax;
+			this.screenPoints = screenPoints;
+		}
+
+		public void run() {
+			isRunning = true;
+			synchronized (runningLock) {
+				for (int x = 0; x < screenPoints.length; x++) {
+					for (int y = 0; y < screenPoints[0].length; y++) {
+						double[] ccoords = calculateComplexFromScreenCoordinates(
+								x, y, xmin, ymin, xmax, ymax,
+								screenPoints.length, screenPoints[0].length);
+
+						screenPoints[x][y] = iterateFunction(ccoords[0],
+								ccoords[1]);
+					}
+					notifyObservers();
+
+				}
 			}
+			isRunning = false;
+		}
+	}
+
+	// ObserverPattern einbauen, damit das Panel neumalt, solange gerechnet wird
+	public void registerCalcObserver(CalcObserver c) {
+		observers.add(c);
+
+	}
+
+	public void notifyObservers() {
+		for (CalcObserver c : observers) {
+			c.notifyCalc();
 
 		}
+
 	}
 }

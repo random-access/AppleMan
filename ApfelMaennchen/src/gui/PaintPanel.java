@@ -12,7 +12,7 @@ import java.awt.event.MouseMotionAdapter;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
-public class PaintPanel extends JPanel {
+public class PaintPanel extends JPanel implements CalcObserver {
 	int[][] points;
 
 	Point mouseCoordinates = new Point(0, 0);
@@ -34,6 +34,9 @@ public class PaintPanel extends JPanel {
 		setPreferredSize(new Dimension(width, height));
 		setBackground(Color.WHITE);
 		setOpaque(true);
+		// eigenen "calcListener" hinzufügen, der gerufen wird wenn grad
+		// gerechnet wird
+		worker.registerCalcObserver(this);
 		// MouseListener hinzufügen
 		addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseMoved(MouseEvent e) {
@@ -58,8 +61,9 @@ public class PaintPanel extends JPanel {
 
 			public void mouseReleased(MouseEvent e) {
 				System.out.println("Mouse released...");
-				if (isDragged) {
-					isDragged = false;
+
+				if (isDragged && !worker.isRunning) {
+
 					// calculate coordinates to be displayed
 
 					int sxmax = Math.max(mouseCoordinates.x, dragCoordinates.x);
@@ -84,6 +88,7 @@ public class PaintPanel extends JPanel {
 					xmin = cmin[0];
 					ymin = cmin[1];
 				}
+				isDragged = false;
 				System.out.println(e.getButton());
 				if (e.getButton() == 3) {
 					// reset window
@@ -134,5 +139,11 @@ public class PaintPanel extends JPanel {
 					mouseCoordinates.x - dragCoordinates.x, mouseCoordinates.y
 							- dragCoordinates.y);
 		}
+	}
+
+	@Override
+	public void notifyCalc() {
+		repaint();
+
 	}
 }
